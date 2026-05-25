@@ -23,7 +23,7 @@ class AttendanceRecordController extends Controller
         $validated = $request->validate([
             'employee_name' => 'required|string|max:255',
             'check_in_time' => 'required|date_format:H:i:s',
-            'check_out_time' => 'date_format:H:i:s',
+            'check_out_time' => 'nullable|date_format:H:i:s',
             'date' => 'required|date_format:Y-m-d',
         ]);
 
@@ -48,7 +48,7 @@ class AttendanceRecordController extends Controller
         $validated = $request->validate([
             'employee_name' => 'required|string|max:255',
             'check_in_time' => 'required|date_format:H:i:s',
-            'check_out_time' => 'date_format:H:i:s',
+            'check_out_time' => 'nullable|date_format:H:i:s',
             'date' => 'required|date_format:Y-m-d',
         ]);
 
