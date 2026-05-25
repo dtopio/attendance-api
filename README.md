@@ -6,6 +6,12 @@ Welcome. This is the backend half of your 3-day training. By the end of today, y
 
 When you're stuck for more than ~20 minutes on the same problem, ask.
 
+**Where this fits in the 3-day training:**
+- **Day 1 (this doc):** Build the Laravel API in the `attendance-api` repo.
+- **Day 2–3:** Switch to the `attendance-frontend` repo and follow `README-frontend.md` there.
+
+Keep this doc open during Day 2–3 — you'll reference the API URLs and field names.
+
 ---
 
 ## Prerequisites
@@ -148,11 +154,13 @@ Hints:
 
 Now you need to implement each method. For each one, think:
 
-- **`index`** — return all records. What does `Model::all()` give you? How do you return JSON in Laravel? (Hint: returning an Eloquent collection automatically becomes JSON.)
-- **`store`** — read the data from the request, **validate it**, then create a record. Look up `$request->validate([...])` — what does it return on success? What happens on failure?
-- **`show`** — return one record by ID. Look up "Laravel route model binding" — you can have Laravel auto-fetch the model for you.
-- **`update`** — same as store, but update an existing record instead of creating one.
-- **`destroy`** — delete a record. What HTTP status should you return when something is deleted successfully?
+- **`index`** — return all records. `Model::all()` returns an Eloquent collection. You can just `return` it — Laravel converts it to JSON automatically when the request expects JSON.
+- **`store`** — read the data from the request, **validate it**, then create a record. `$request->validate([...])` returns the validated data on success and automatically throws a 422 response on failure, so you don't need a try/catch. Pass the validated data straight into `Model::create()`.
+- **`show`** — return one record by ID. Look up "Laravel route model binding" — instead of `find($id)` you can type-hint the model in the method signature and Laravel fetches it for you (or 404s if missing).
+- **`update`** — same idea as store, but call `update()` on the existing model instead of `create()`. Return the updated model.
+- **`destroy`** — delete a record. What HTTP status should you return when something is deleted successfully and there's no body to return?
+
+**Important gotcha for route model binding:** the **variable name** in your method signature must match the route parameter name. If your route is `/attendance/{attendance}`, your method must be `function show(AttendanceRecord $attendance)` — not `$record`, not `$id`. If they don't match, you'll get 404s with no obvious cause. We'll set this up correctly in Step 8.
 
 Things to look up:
 
@@ -173,6 +181,7 @@ Hints:
 
 - Look up `Route::apiResource(...)` in the Laravel routing docs
 - Make sure to import your controller class at the top of the file
+- `apiResource('attendance', ...)` will create routes with `{attendance}` as the parameter name. This is why Step 7 said your method signatures must use `$attendance` — the names must match for route model binding to work
 
 After registering, verify with:
 
@@ -196,7 +205,7 @@ If you skip this step, your frontend tomorrow will fail with cryptic errors.
 
 Hints:
 
-- In Laravel 11, run `php artisan config:publish cors` to publish the config file
+- In Laravel 11, run `php artisan config:publish cors` to publish the config file. If that command doesn't exist on your version, try `php artisan vendor:publish --tag=cors` instead
 - Open `config/cors.php`
 - The `paths` array should include `'api/*'`
 - The `allowed_origins` array should include both `http://localhost:5173` and `http://127.0.0.1:5173` (browsers treat these as different origins)
@@ -288,6 +297,9 @@ You forgot to list that field in `$fillable` on the model.
 
 **"404 Not Found" when hitting `/api/attendance`**
 Either you forgot to run `php artisan install:api`, or you forgot to register the route in `routes/api.php`, or you registered it in `routes/web.php` by mistake.
+
+**"404 Not Found" on `/api/attendance/1` but the list endpoint works**
+Your controller method's parameter name doesn't match the route parameter name. With `apiResource('attendance', ...)`, your method must use `$attendance` (e.g., `public function show(AttendanceRecord $attendance)`). If you named it `$record` or `$id`, route model binding fails silently and returns 404.
 
 **Postman returns HTML instead of JSON**
 You forgot the `Accept: application/json` header.
