@@ -21,9 +21,9 @@ class AttendanceRecordController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'employee_name' => 'required|string|max:255',
+            'employee_name' => 'required|string|max:255|unique:attendance_records,employee_name',
             'check_in_time' => 'required|date_format:H:i:s',
-            'check_out_time' => 'nullable|date_format:H:i:s',
+            'check_out_time' => 'nullable|date_format:H:i:s|after:check_in_time',
             'date' => 'required|date_format:Y-m-d',
         ]);
 
@@ -37,6 +37,7 @@ class AttendanceRecordController extends Controller
      */
     public function show(AttendanceRecord $attendance)
     {
+        // show the specified attendance report
         return $attendance;
     }
 
@@ -45,10 +46,11 @@ class AttendanceRecordController extends Controller
      */
     public function update(Request $request, AttendanceRecord $attendance)
     {
+        // validate the request data
         $validated = $request->validate([
-            'employee_name' => 'required|string|max:255',
+            'employee_name' => 'required|string|max:255|unique:attendance_records,employee_name' . $attendance->id,
             'check_in_time' => 'required|date_format:H:i:s',
-            'check_out_time' => 'nullable|date_format:H:i:s',
+            'check_out_time' => 'nullable|date_format:H:i:s|after:check_in_time',
             'date' => 'required|date_format:Y-m-d',
         ]);
 
