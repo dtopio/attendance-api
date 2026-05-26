@@ -12,7 +12,7 @@ class AttendanceRecordController extends Controller
      */
     public function index()
     {
-        return AttendanceRecord::all();
+        return response()->json(AttendanceRecord::all(), 200);
     }
 
     /**
@@ -38,7 +38,7 @@ class AttendanceRecordController extends Controller
     public function show(AttendanceRecord $attendance)
     {
         // show the specified attendance report
-        return $attendance;
+        return response()->json($attendance, 200);
     }
 
     /**
@@ -56,7 +56,7 @@ class AttendanceRecordController extends Controller
 
         $attendance->update($validated);
 
-        return $attendance;
+        return response()->json($attendance, 204);
     }
 
     /**
