@@ -4,4 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceRecordController;
 
-Route::apiResource('attendance', AttendanceRecordController::class);
+Route::middleware(['throttle:api'])->group(function () {
+    Route::apiResource('attendance', AttendanceRecordController::class);
+});
